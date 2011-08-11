@@ -7,8 +7,8 @@ module Weeter
 
     def process_http_request
       Weeter.logger.info("Reconnecting Twitter stream")
-      ids = JSON.parse(@http_post_content)
-      tweet_consumer.reconnect(ids)
+      filter_params = JSON.parse(@http_post_content)
+      tweet_consumer.reconnect(filter_params)
       EM::DelegatedHttpResponse.new(self).send_response
     end
   end

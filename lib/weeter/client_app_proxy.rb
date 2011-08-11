@@ -7,19 +7,19 @@ module Weeter
       @config = client_app_config
     end
 
-    def get_initial_ids(&block)
+    def get_initial_filters(&block)
       http = http_request(:get, @config.subscriptions_url)
       http.callback {
-        initial_ids = []
+        filter_params = {}
         if http.response_header.status == 200
-          initial_ids = JSON.parse(http.response).map {|h| h['twitter_user_id'] }
+          yield JSON.parse(http.response)
         else
-          Weeter.logger.error "Initial ID request failed with response code #{http.response_header.status}."
+          Weeter.logger.error "Initial filters request failed with response code #{http.response_header.status}."
+          yield
         end
-        yield initial_ids
       }
     end
-
+    
     def delete_tweet(tweet_item)
       id = tweet_item['delete']['status']['id'].to_s
       user_id = tweet_item['delete']['status']['user_id'].to_s

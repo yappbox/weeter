@@ -11,14 +11,14 @@ describe Weeter::TweetConsumer do
       Weeter::TwitterConfiguration.instance.stub!(:auth_options).and_return(:foo => :bar)
       consumer = Weeter::TweetConsumer.new(Weeter::TwitterConfiguration.instance, mock('ClientAppProxy'))
       Twitter::JSONStream.should_receive(:connect).with(hash_including(:foo => :bar))
-      consumer.connect([1,2])
+      consumer.connect({'follow' => ['1','2']})
     end
   end
 
   describe "connecting to twitter" do
 
     before(:each) do
-      @ids = [1,2,3]
+      @filter_params = {'follow' => ['1','2','3']}
       Weeter::TwitterConfiguration.instance.stub!(:auth_options).and_return(:foo => :bar)
       @tweet_values = {'text' => "Hey", 'id_str' => "123", 'user' => {'id_str' => "1"}}
       @mock_stream = mock('JSONStream', :on_error => nil, :on_max_reconnects => nil)
@@ -29,7 +29,7 @@ describe Weeter::TweetConsumer do
     end
     
     after(:each) do
-      @consumer.connect(@ids)
+      @consumer.connect(@filter_params)
     end
 
     it "should instantiate a TweetItem" do
@@ -39,7 +39,7 @@ describe Weeter::TweetConsumer do
 
     it "should connect to a Twitter JSON stream" do
       Twitter::JSONStream.should_receive(:connect).
-        with(:foo => :bar, :params => {:follow => @ids}, :method => 'POST')
+        with(:foo => :bar, :params => @filter_params, :method => 'POST')
     end
   
     it "should publish new tweet if publishable" do

@@ -10,8 +10,8 @@ module Weeter
 
     def start
       EM.run {
-        client_app_proxy.get_initial_ids do |initial_ids|
-          tweet_consumer.connect(initial_ids)
+        client_app_proxy.get_initial_filters do |filter_params|
+          tweet_consumer.connect(filter_params)
 
           EM.start_server('localhost', @config.listening_port, Weeter::Server) do |conn|
             conn.tweet_consumer = tweet_consumer

@@ -8,8 +8,10 @@ module Weeter
       @client_app = client_app
     end
 
-    def connect(ids)
-      connect_options = {:params => {:follow => ids}, :method => 'POST'}.merge(@config.auth_options)
+    def connect(filter_params)
+      filter_params = clean_filter_params(filter_params)
+      
+      connect_options = {:params => filter_params, :method => 'POST'}.merge(@config.auth_options)
       @stream = Twitter::JSONStream.connect(connect_options)
 
       @stream.each_item do |item|
@@ -37,13 +39,21 @@ module Weeter
       end
     end
 
-    def reconnect(ids)
+    def reconnect(filter_params)
       @stream.stop
-      connect(ids)
+      connect(filter_params)
     end
 
   protected
-
+    
+    def clean_filter_params(p)
+      return {} if p.nil?
+      cleaned_params = {}
+      cleaned_params['follow'] = p['follow'] if (p['follow'] || []).any?
+      cleaned_params['track'] = p['track'] if (p['track'] || []).any?
+      cleaned_params
+    end
+    
     def ignore_tweet(tweet_item)
       id = tweet_item['id_str']
       text = tweet_item['text']
