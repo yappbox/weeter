@@ -25,22 +25,22 @@ describe Weeter::TweetItem do
       item.should be_publishable
     end
 
-    it "should be true if implicitly retweeted" do
+    it "should not be publishable if implicitly retweeted" do
       item = Weeter::TweetItem.new(@tweet_json.merge({'text' => 'RT @joe Hey'}))
       item.should_not be_publishable
     end
 
-    it "should be true if explicitly retweeted" do
+    it "should not be publishable if explicitly retweeted" do
       item = Weeter::TweetItem.new(@tweet_json.merge('retweeted_status' => {'id_str' => '111', 'text' => 'Hey', 'user' => {'id_str' => "1"}}))
       item.should_not be_publishable
     end
 
-    it "should be true if implicit reply" do
+    it "should not be publishable if implicit reply" do
       item = Weeter::TweetItem.new(@tweet_json.merge('text' => '@joe Hey'))
       item.should_not be_publishable
     end
 
-    it "should be true if explicit reply" do
+    it "should not be publishable if explicit reply" do
       item = Weeter::TweetItem.new(@tweet_json.merge('text' => '@joe Hey', 'in_reply_to_user_id_str' => '1'))
       item.should_not be_publishable
     end
