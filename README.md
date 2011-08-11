@@ -12,9 +12,9 @@ To configure how weeter connects to your client app -- its (optional) authentica
 
 * _subscriptions_url_: The URL at which to find JSON describing the Twitter users to follow (maximum 5,000 at the default API access level) and the terms to track (maximum 400 at the default API access level). Example content:
     `{"follow":"19466709", "759251"},{"track":"#lolcats","#bieber"}`
-* _publish_url_: The URL to which new tweets should be posted. Example POST body:
+* _publish_url_: The URL to which new tweets should be posted. Request will be sent with POST method. Example body:
     `id=1111&twitter_user_id=19466709&text=Wassup`
-* _delete_url_: The URL to which data about deleted tweets should be posted. Example DELETE body:
+* _delete_url_: The URL to which data about deleted tweets should be posted. Request will be sent with DELETE method. Example body:
     `id=1111&twitter_user_id=19466709`
 
 Weeter is configured to use 7337 as a default listening port. If you have changes to your subscriptions data, POST the full JSON to the weeter's root URL. This will trigger weeter to reconnect to Twitter with the updated filters in place.

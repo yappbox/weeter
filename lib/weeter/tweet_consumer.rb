@@ -31,7 +31,7 @@ module Weeter
       end
 
       @stream.on_error do |msg|
-        Weeter.logger.error("Twitter stream error: #{msg}")
+        Weeter.logger.error("Twitter stream error: #{msg}. Connect options were #{connect_options.inspect}")
       end
 
       @stream.on_max_reconnects do |timeout, retries|

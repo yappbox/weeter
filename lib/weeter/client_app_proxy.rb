@@ -1,4 +1,5 @@
 require 'em-http'
+require 'roauth'
 
 module Weeter
   class ClientAppProxy
