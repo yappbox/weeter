@@ -9,7 +9,8 @@ GEM
   remote: http://rubygems.org/
   specs:
     addressable (2.2.2)
-    columnize (0.3.1)
+    archive-tar-minitar (0.5.2)
+    columnize (0.3.4)
     daemons (1.1.0)
     diff-lcs (1.1.2)
     em-http-request (0.2.14)
@@ -18,7 +19,8 @@ GEM
     eventmachine (0.12.10)
     eventmachine_httpserver (0.2.0)
     json (1.4.6)
-    linecache (0.43)
+    linecache19 (0.5.12)
+      ruby_core_source (>= 0.1.4)
     rake (0.8.7)
     rspec (2.0.1)
       rspec-core (~> 2.0.1)
@@ -30,11 +32,16 @@ GEM
     rspec-mocks (2.0.1)
       rspec-core (~> 2.0.1)
       rspec-expectations (~> 2.0.1)
-    ruby-debug (0.10.3)
-      columnize (>= 0.1)
-      ruby-debug-base (~> 0.10.3.0)
-    ruby-debug-base (0.10.3)
-      linecache (>= 0.3)
+    ruby-debug-base19 (0.11.25)
+      columnize (>= 0.3.1)
+      linecache19 (>= 0.5.11)
+      ruby_core_source (>= 0.1.4)
+    ruby-debug19 (0.11.6)
+      columnize (>= 0.3.1)
+      linecache19 (>= 0.5.11)
+      ruby-debug-base19 (>= 0.11.19)
+    ruby_core_source (0.1.5)
+      archive-tar-minitar (>= 0.5.2)
     twitter-stream (0.1.10)
       eventmachine (>= 0.12.8)
       roauth (>= 0.0.2)
@@ -51,5 +58,5 @@ DEPENDENCIES
   rake
   roauth!
   rspec
-  ruby-debug
+  ruby-debug19
   twitter-stream

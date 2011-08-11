@@ -9,7 +9,11 @@ gem 'daemons'
 gem "roauth", :git => 'git://github.com/maccman/roauth.git', :ref => '0cac7427c3d3ad6110c56bc154f290e6bc109312'
 
 group :development do
-  gem "ruby-debug"
+  if RUBY_VERSION.to_f < 1.9
+    gem 'ruby-debug'
+  else
+    gem 'ruby-debug19'
+  end
   gem "rspec", :require => "spec"
   gem "rake"
 end
