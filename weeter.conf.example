@@ -26,5 +26,5 @@ Weeter.configure do |conf|
   end
 
   # conf.log_path = ''
-  # conf.listening_port = 7337
+  # conf.listening_port = 7337 # only effective if running as a daemon
 end

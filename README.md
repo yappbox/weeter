@@ -22,11 +22,21 @@ Weeter is configured to use 7337 as a default listening port. If you have change
 Running weeter
 ==============
 
+You have two options. Run it as a standalone daemon, or run it as a rack app under thin.
+
+Running weeter as a daemon
+--------------------------
+
     $ bin/weeter_control start
 
 This starts weeter as a daemon. For other commands and options, run:
 
     $ bin/weeter_control --help
+
+Running weeter as a rack app under thin
+---------------------------------------
+
+    $ bundle exec thin start -R config.ru -p 7337
 
 
 Running specs
