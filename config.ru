@@ -1,8 +1,6 @@
 require "rubygems"
 require "bundler/setup"
-
 require 'eventmachine'
-require 'ruby-debug'
 
 $:.unshift File.expand_path("../lib", __FILE__)
 require 'weeter'
