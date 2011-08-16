@@ -51,3 +51,10 @@ To Do
 - Add specs for client app proxy
 - integration tests
 
+Credits
+======
+Thanks to Weplay for initial development and open sourcing weeter. In particular, credit goes to Noah Davis and Joey Aghion. Further development by Luke Melia at Yapp.
+
+License
+=======
+weeter is available under the terms of the MIT License http://www.opensource.org/licenses/mit-license.php

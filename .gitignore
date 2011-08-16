@@ -1,6 +1,5 @@
 .rvmrc
 .bundle
-weeter.conf
 weeter.pid
 log/*.log
 vendor/bundle
