@@ -1,5 +1,5 @@
 require 'em-http'
-require 'roauth'
+require 'simple_oauth'
 
 module Weeter
   module Plugins
@@ -32,7 +32,7 @@ module Weeter
         end
 
         def self.oauth_header(config, uri, params, http_method)
-          ::ROAuth.header(config.oauth, uri, params, http_method)
+          ::SimpleOauth::Header.new(http_method, uri, params, config.oauth).to_s
         end
       end
     end

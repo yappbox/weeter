@@ -22,7 +22,7 @@ describe Weeter::Twitter::TweetConsumer do
       Weeter::Configuration::TwitterConfig.instance.stub!(:auth_options).and_return(:foo => :bar)
       @tweet_values = {'text' => "Hey", 'id_str' => "123", 'user' => {'id_str' => "1"}}
       @mock_stream = mock('JSONStream', :on_error => nil, :on_max_reconnects => nil)
-      @mock_stream.stub!(:each_item).and_yield(@tweet_values.to_json)
+      @mock_stream.stub!(:each_item).and_yield(MultiJson.encode(@tweet_values))
       Twitter::JSONStream.stub!(:connect).and_return(@mock_stream)
       @client_proxy = mock('NotificationPlugin', :publish_tweet => nil)
       @consumer = Weeter::Twitter::TweetConsumer.new(Weeter::Configuration::TwitterConfig.instance, @client_proxy)

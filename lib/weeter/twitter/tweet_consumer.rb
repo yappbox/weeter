@@ -1,4 +1,5 @@
 require 'twitter/json_stream'
+require 'multi_json'
 
 module Weeter
   module Twitter
@@ -16,7 +17,7 @@ module Weeter
 
         @stream.each_item do |item|
           begin
-            tweet_item = TweetItem.new(JSON.parse(item))
+            tweet_item = TweetItem.new(MultiJson.decode(item))
 
             if tweet_item.deletion?
               @notifier.delete_tweet(tweet_item)

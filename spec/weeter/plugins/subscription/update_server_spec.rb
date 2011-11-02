@@ -7,7 +7,7 @@ module Weeter
           @new_ids = [1,2,3]
           @tweet_consumer = mock('TweetConsumer', :reconnect => nil)
           @tweet_server = Http::UpdateServer.new(nil)
-          @tweet_server.instance_variable_set('@http_post_content', @new_ids.to_json)
+          @tweet_server.instance_variable_set('@http_post_content', MultiJson.encode(@new_ids))
           @tweet_server.tweet_consumer = @tweet_consumer
           @response = mock('DelegatedHttpResponse', :send_response => nil)
           EM::DelegatedHttpResponse.stub!(:new).and_return(@response)

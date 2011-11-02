@@ -1,3 +1,5 @@
+require 'multi_json'
+
 module Weeter
   module Plugins
     module Subscription
@@ -13,7 +15,7 @@ module Weeter
             if value.nil?
               raise "Expected to find subscription data at redis key #{@config.subscriptions_key}"
             end
-            yield JSON.parse(value)
+            yield MultiJson.decode(value)
           end
         end
 

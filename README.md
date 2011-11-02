@@ -2,6 +2,10 @@ Weeter is a tireless worker who accepts a set of Twitter users to follow and ter
 
 Supported strategies for tweet notification include HTTP (issue a POST to your app) and Resque (queue a job). Weeter is extensible with other notification strategies.
 
+Status
+======
+Alpha. A previous version of this code has been in production for some time. It has been substantially refactored and will be battle-tested soon.
+
 Getting set up
 ==============
 
@@ -58,10 +62,11 @@ For option :redis, also provide the following:
 Running weeter
 ==============
 
-Weeter can be run as a simple daemon. If you're using the :http subscription plugin, you can opt to run Weeter as a rack app under thin. 
+Weeter can be run using the weeter executable installed by the gem.
 
 Running Weeter as a daemon
 --------------------------
+The gem also installs a weeter_control executable that can be used to start Weeter as a daemon
 
     $ bin/weeter_control start
 
@@ -69,10 +74,6 @@ This starts Weeter as a daemon. For other commands and options, run:
 
     $ bin/weeter_control --help
 
-Running Weeter as a rack app under thin
----------------------------------------
-
-    $ bundle exec thin start -R config.ru -p 7337
 
 
 Running specs
@@ -80,11 +81,12 @@ Running specs
 
     $ bundle exec rspec spec/
 
-To Do
-=====
-- Error reporting
-- Make tweet filtering strategy (re-tweets, replies, etc.) more flexible
-- Add specs for client app proxy
+TODO
+====
+- Better error reporting
+- Make tweet filtering strategy (re-tweets, replies, etc.) more configurable
+- Add specs for plugins
+- Extract plugins into separate gems
 - integration tests
 
 Credits

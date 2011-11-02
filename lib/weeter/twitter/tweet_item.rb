@@ -1,3 +1,5 @@
+require 'multi_json'
+
 module Weeter
 
   class TweetItem
@@ -26,7 +28,7 @@ module Weeter
     end
     
     def to_json
-      @tweet_hash.to_json
+      MultiJson.encode(@tweet_hash)
     end
   end
 
