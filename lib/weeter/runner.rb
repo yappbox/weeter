@@ -10,12 +10,10 @@ module Weeter
 
     def start
       EM.run {
-        client_app_proxy.get_initial_filters do |filter_params|
+        subscription_plugin.get_initial_filters do |filter_params|
+          Weeter.logger.info("Connecting to twitter with initial filters")
           tweet_consumer.connect(filter_params)
-
-          EM.start_server('localhost', @config.listening_port, Weeter::Server) do |conn|
-            conn.tweet_consumer = tweet_consumer
-          end
+          subscription_plugin.listen_for_filter_update(tweet_consumer)
 
           trap('TERM') do
             Weeter.logger.info("Stopping weeter")
@@ -26,13 +24,17 @@ module Weeter
     end
 
   protected
-
-    def client_app_proxy
-      @client_app_proxy ||= Weeter::ClientAppProxy.new(ClientAppConfiguration.instance)
+  
+    def notification_plugin
+      @notification_plugin ||= Weeter::Plugins::NotificationPlugin.new(@config.client_app)
     end
-    
+
+    def subscription_plugin
+      @subscription_plugin ||= Weeter::Plugins::SubscriptionPlugin.new(@config.client_app)
+    end
+
     def tweet_consumer
-      @tweet_consumer ||= Weeter::TweetConsumer.new(TwitterConfiguration.instance, client_app_proxy)
+      @tweet_consumer ||= Weeter::Twitter::TweetConsumer.new(@config.twitter, notification_plugin)
     end
   end
 end

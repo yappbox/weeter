@@ -1,43 +1,24 @@
 require "singleton"
-
+require "weeter/configuration/client_app_config"
+require "weeter/configuration/twitter_config"
+ 
 module Weeter
-
-  class TwitterConfiguration
-    include Singleton
-    attr_accessor :basic_auth, :oauth
-    
-    def auth_options
-      if oauth
-        {:oauth => oauth}
-      else
-        username = basic_auth[:username]
-        password = basic_auth[:password]
-        {:auth => "#{username}:#{password}"}
-      end
-    end
-  end
-  
-  class ClientAppConfiguration
-    include Singleton
-    attr_accessor :publish_url, :delete_url, :subscriptions_url, :oauth
-  end
 
   class Configuration
     include Singleton
-    attr_accessor :listening_port, :log_path
+    attr_accessor :log_path
 
     def twitter
-      yield TwitterConfiguration.instance
+      yield Configuration::TwitterConfig.instance if block_given?
+      Configuration::TwitterConfig.instance
     end
     
     def client_app
-      yield ClientAppConfiguration.instance
+      @client_app_config ||= Configuration::ClientAppConfig.new
+      yield @client_app_config if block_given?
+      @client_app_config
     end
     
-    def listening_port
-      @listening_port || 7337
-    end
-
     def log_path
       @log_path || File.join(File.dirname(__FILE__), '..', '..', 'log', 'weeter.log')
     end

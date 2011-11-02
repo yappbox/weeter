@@ -8,6 +8,7 @@ GIT
 GEM
   remote: http://rubygems.org/
   specs:
+    activesupport (3.0.0)
     addressable (2.2.6)
     archive-tar-minitar (0.5.2)
     columnize (0.3.4)
@@ -20,6 +21,7 @@ GEM
     escape_utils (0.2.3)
     eventmachine (0.12.10)
     eventmachine_httpserver (0.2.0)
+    hashie (1.1.0)
     http_parser.rb (0.5.1)
     json (1.4.6)
     linecache19 (0.5.12)
@@ -60,9 +62,11 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
+  activesupport
   em-http-request
   eventmachine
   eventmachine_httpserver
+  hashie
   json
   rake
   roauth!

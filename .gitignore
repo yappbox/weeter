@@ -1,5 +1,7 @@
 .rvmrc
 .bundle
 weeter.pid
+weeter.conf
 log/*.log
 vendor/bundle
+.DS_Store

@@ -4,11 +4,9 @@ require 'logger'
 
 require 'weeter/configuration'
 require 'weeter/cli'
-require 'weeter/client_app_proxy'
-require 'weeter/server'
-require 'weeter/tweet_item'
-require 'weeter/tweet_consumer'
+require 'weeter/plugins'
 require 'weeter/runner'
+require 'weeter/twitter'
 
 
 module Weeter

@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe Weeter::TweetConsumer do
+describe Weeter::Twitter::TweetConsumer do
 
 
   describe "auth" do
@@ -8,8 +8,8 @@ describe Weeter::TweetConsumer do
       @mock_stream = mock('JSONStream', :each_item => nil, :on_error => nil, :on_max_reconnects => nil)
       Twitter::JSONStream.stub!(:connect).and_return(@mock_stream)
 
-      Weeter::TwitterConfiguration.instance.stub!(:auth_options).and_return(:foo => :bar)
-      consumer = Weeter::TweetConsumer.new(Weeter::TwitterConfiguration.instance, mock('ClientAppProxy'))
+      Weeter::Configuration::TwitterConfig.instance.stub!(:auth_options).and_return(:foo => :bar)
+      consumer = Weeter::Twitter::TweetConsumer.new(Weeter::Configuration::TwitterConfig.instance, mock('NotificationPlugin'))
       Twitter::JSONStream.should_receive(:connect).with(hash_including(:foo => :bar))
       consumer.connect({'follow' => ['1','2']})
     end
@@ -19,13 +19,13 @@ describe Weeter::TweetConsumer do
 
     before(:each) do
       @filter_params = {'follow' => ['1','2','3']}
-      Weeter::TwitterConfiguration.instance.stub!(:auth_options).and_return(:foo => :bar)
+      Weeter::Configuration::TwitterConfig.instance.stub!(:auth_options).and_return(:foo => :bar)
       @tweet_values = {'text' => "Hey", 'id_str' => "123", 'user' => {'id_str' => "1"}}
       @mock_stream = mock('JSONStream', :on_error => nil, :on_max_reconnects => nil)
       @mock_stream.stub!(:each_item).and_yield(@tweet_values.to_json)
       Twitter::JSONStream.stub!(:connect).and_return(@mock_stream)
-      @client_proxy = mock('ClientAppProxy', :publish_tweet => nil)
-      @consumer = Weeter::TweetConsumer.new(Weeter::TwitterConfiguration.instance, @client_proxy)
+      @client_proxy = mock('NotificationPlugin', :publish_tweet => nil)
+      @consumer = Weeter::Twitter::TweetConsumer.new(Weeter::Configuration::TwitterConfig.instance, @client_proxy)
     end
     
     after(:each) do
