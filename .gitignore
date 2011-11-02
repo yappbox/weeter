@@ -5,3 +5,4 @@ weeter.conf
 log/*.log
 vendor/bundle
 .DS_Store
+Gemfile.lock
