@@ -1,20 +1,20 @@
 module Weeter
 
   class TweetItem
-    def initialize(json)
-      @tweet_json = json
+    def initialize(tweet_hash)
+      @tweet_hash = tweet_hash
     end
 
     def deletion?
-      !@tweet_json['delete'].nil?
+      !@tweet_hash['delete'].nil?
     end
     
     def retweeted?
-      !@tweet_json['retweeted_status'].nil? || @tweet_json['text'] =~ /^RT @/i
+      !@tweet_hash['retweeted_status'].nil? || @tweet_hash['text'] =~ /^RT @/i
     end
     
     def reply?
-      !@tweet_json['in_reply_to_user_id_str'].nil? || @tweet_json['text'] =~ /^@/
+      !@tweet_hash['in_reply_to_user_id_str'].nil? || @tweet_hash['text'] =~ /^@/
     end
     
     def publishable?
@@ -22,9 +22,12 @@ module Weeter
     end
     
     def [](val)
-      @tweet_json[val]
+      @tweet_hash[val]
     end
-
+    
+    def to_json
+      @tweet_hash.to_json
+    end
   end
 
 end

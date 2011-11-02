@@ -39,7 +39,7 @@ describe Weeter::Twitter::TweetConsumer do
 
     it "should connect to a Twitter JSON stream" do
       Twitter::JSONStream.should_receive(:connect).
-        with(:foo => :bar, :params => @filter_params, :method => 'POST')
+        with(:ssl => true, :foo => :bar, :params => @filter_params, :method => 'POST')
     end
   
     it "should publish new tweet if publishable" do

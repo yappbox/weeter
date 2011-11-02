@@ -9,7 +9,7 @@ module Weeter
         end
 
         def get_initial_filters(&block)
-          http = Weeter::OauthHttp.get(@config, @config.subscriptions_url)
+          http = Weeter::Plugins::Net::OauthHttp.get(@config, @config.subscriptions_url)
           http.callback {
             filter_params = {}
             if http.response_header.status == 200
