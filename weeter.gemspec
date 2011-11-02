@@ -23,7 +23,7 @@ Gem::Specification.new do |s|
   s.add_dependency('eventmachine_httpserver', '>= 0.2.1')
   s.add_dependency('em-hiredis', '>= 0.1.0')
   s.add_dependency('multi_json', '>= 1.0.2')
-  s.add_dependency('hashie', '>= 1.2.0')
+  s.add_dependency('hashie', '>= 1.1.0')
   s.add_dependency('em-http-request', '>= 1.0.0')
   s.add_dependency('i18n', "~> 0.6.0")
   s.add_dependency('activesupport', ">= 3.1.1")

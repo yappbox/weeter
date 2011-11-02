@@ -3,7 +3,11 @@
 #
 Weeter.configure do |conf|
 
+  # To log to STDOUT, don't specify anything.
+  # To log to a specific path:
   # conf.log_path = '/tmp/weeter.log'
+  # To disable logging:
+  # conf.log_path = false
 
   conf.twitter do |twitter|
     # For basic auth

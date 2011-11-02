@@ -16,6 +16,14 @@ module Weeter
   end
   
   def self.logger
-    @logger ||= Logger.new(Configuration.instance.log_path)
+    @logger ||= begin
+      if Configuration.instance.log_path == false
+        nil
+      elsif Configuration.instance.log_path
+        Logger.new(Configuration.instance.log_path)
+      else
+        Logger.new(STDOUT)
+      end
+    end
   end
 end

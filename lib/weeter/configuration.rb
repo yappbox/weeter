@@ -18,9 +18,5 @@ module Weeter
       yield @client_app_config if block_given?
       @client_app_config
     end
-    
-    def log_path
-      @log_path || File.join(File.dirname(__FILE__), '..', '..', 'log', 'weeter.log')
-    end
   end
 end
