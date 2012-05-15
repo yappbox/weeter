@@ -27,7 +27,7 @@ describe Weeter::Twitter::TweetConsumer do
       @client_proxy = mock('NotificationPlugin', :publish_tweet => nil)
       @consumer = Weeter::Twitter::TweetConsumer.new(Weeter::Configuration::TwitterConfig.instance, @client_proxy)
     end
-    
+
     after(:each) do
       @consumer.connect(@filter_params)
     end
@@ -39,21 +39,21 @@ describe Weeter::Twitter::TweetConsumer do
 
     it "should connect to a Twitter JSON stream" do
       Twitter::JSONStream.should_receive(:connect).
-        with(:ssl => true, :foo => :bar, :params => @filter_params, :method => 'POST')
+        with(:ssl => true, :foo => :bar, :params => {'follow' => [1,2,3]}, :method => 'POST')
     end
-  
+
     it "should publish new tweet if publishable" do
       mock_tweet = mock('tweet', :deletion? => false, :publishable? => true)
       tweet_item = Weeter::TweetItem.stub!(:new).and_return mock_tweet
       @client_proxy.should_receive(:publish_tweet).with(mock_tweet)
     end
-    
+
     it "should not publish unpublishable tweets" do
       mock_tweet = mock('tweet', :deletion? => false, :publishable? => false, :[] => '')
       tweet_item = Weeter::TweetItem.stub!(:new).and_return mock_tweet
       @client_proxy.should_not_receive(:publish_tweet).with(mock_tweet)
     end
-    
+
     it "should delete deletion tweets" do
       mock_tweet = mock('tweet', :deletion? => true, :publishable? => false)
       tweet_item = Weeter::TweetItem.stub!(:new).and_return mock_tweet

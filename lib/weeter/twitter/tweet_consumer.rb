@@ -46,15 +46,16 @@ module Weeter
       end
 
     protected
-    
+
       def clean_filter_params(p)
         return {} if p.nil?
         cleaned_params = {}
         cleaned_params['follow'] = p['follow'] if (p['follow'] || []).any?
+        cleaned_params['follow'] = cleaned_params['follow'].map(&:to_i)
         cleaned_params['track'] = p['track'] if (p['track'] || []).any?
         cleaned_params
       end
-    
+
       def ignore_tweet(tweet_item)
         id = tweet_item['id_str']
         text = tweet_item['text']
