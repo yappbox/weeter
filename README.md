@@ -6,20 +6,22 @@ Status
 ======
 Alpha. A previous version of this code has been in production for some time. It has been substantially refactored and will be battle-tested soon.
 
+[![Build Status](https://secure.travis-ci.org/lukemelia/weeter.png?branch=master)](http://travis-ci.org/lukemelia/weeter)
+
 Getting set up
 ==============
 
     $ bundle install
 
 Make a copy of the weeter.conf.example file named weeter.conf. Twitter configuration, client app configuration and weeter configuration are defined in separate
-blocks. To configure how you connect to Twitter (basic auth or oauth), modify the twitter section of the configuration. 
+blocks. To configure how you connect to Twitter (basic auth or oauth), modify the twitter section of the configuration.
 
 To configure how weeter connects to your client app, modify the client app configuration section:
 
 Notifications
 -------------
 
-* *notification_plugin*: A symbol matching the underscorized name of the NotificationPlugin subclass to use. Current options are :http and :resque 
+* *notification_plugin*: A symbol matching the underscorized name of the NotificationPlugin subclass to use. Current options are :http and :resque
 
 For option :http, also provide the following:
 
@@ -39,7 +41,7 @@ For option :resque, provide the following:
 Subscriptions
 -------------
 
-* *subscription_plugin*: A symbol matching the underscorized name of the SubscrptionsPlugin subclass to use. Current options are :http and :redis 
+* *subscription_plugin*: A symbol matching the underscorized name of the SubscrptionsPlugin subclass to use. Current options are :http and :redis
 
 For option :http, also provide the following:
 
