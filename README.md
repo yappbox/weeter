@@ -48,14 +48,14 @@ For option :http, also provide the following:
 * *oauth*: See the conf file for an example
 
 * *subscriptions_url*: The URL at which to find JSON describing the Twitter users to follow (maximum 5,000 at the default API access level) and the terms to track (maximum 400 at the default API access level). Example content:
-    `{"follow":"19466709", "759251"},{"track":"#lolcats","#bieber"}`
+    `{"follow":["19466709", "759251"],"track":["#lolcats","#bieber"]}`
 
 * *subscription_updates_port*: The port Weeter should listen on for HTTP connections. If you have changes to your subscriptions data, POST the full JSON to the weeter's root URL. This will trigger weeter to reconnect to Twitter with the updated filters in place.
 
 For option :redis, also provide the following:
 
 * *subscriptions_key*: The Redis key at which the Weeter can find JSON describing the Twitter users to follow (maximum 5,000 at the default API access level) and the terms to track (maximum 400 at the default API access level). Example content:
-    `{"follow":"19466709", "759251"},{"track":"#lolcats","#bieber"}`
+    `{"follow":["19466709", "759251"],"track":["#lolcats","#bieber"]}`
 
 * *subscriptions_changed_channel*: The Redis publish/subscribe channel to subscribe to in order to be notified that the subscriptions have changed. When your app has an updated set of subscriptions, it should update the _subscriptions_key_ and publish a "CHANGED" message to this channel. Weeter will then retrieve an updated set of subscriptions from Redis and reconnect to twitter.
 
