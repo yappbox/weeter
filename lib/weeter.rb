@@ -2,20 +2,20 @@ require 'eventmachine'
 require 'json'
 require 'logger'
 
-require 'weeter/configuration'
-require 'weeter/cli'
-require 'weeter/plugins'
-require 'weeter/runner'
-require 'weeter/twitter'
-
-
 module Weeter
-  
-  def self.configure
+  extend self
+
+  autoload 'Cli',     'weeter/cli'
+  autoload 'Plugins', 'weeter/plugins'
+  autoload 'Runner',  'weeter/runner'
+  autoload 'Twitter', 'weeter/twitter'
+  autoload 'Configuration', 'weeter/configuration'
+
+  def configure
     yield Configuration.instance
   end
-  
-  def self.logger
+
+  def logger
     @logger ||= begin
       if Configuration.instance.log_path == false
         nil
