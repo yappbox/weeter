@@ -21,10 +21,10 @@ Weeter.configure do |conf|
                     }
   end
 
-  conf.limiter do |limiter|
-    limiter.enabled = true
-    limter.max = 10
-    limter.duration = 10.minutes
+  conf.limiter do |limit|
+    limit.enabled = true
+    limit.max = 100
+    limit.duration = 10.minutes
   end
 
   conf.client_app do |client_app|
