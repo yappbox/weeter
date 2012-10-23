@@ -22,7 +22,7 @@ module Weeter
           begin
             tweet_item = TweetItem.new(MultiJson.decode(item))
 
-            if limiter.limit?(tweet_item.limiting_facets)
+            if limiter.limit?(*tweet_item.limiting_facets)
               rate_limit_tweet(tweet_item)
             elsif tweet_item.deletion?
               @notifier.delete_tweet(tweet_item)

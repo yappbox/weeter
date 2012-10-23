@@ -32,8 +32,8 @@ module Weeter
     end
 
     def limiting_facets
-      self['hashtags'].map do |tag|
-        tag['text']
+      self['entities']['hashtags'].map do |tag|
+        tag['text'].downcase.chomp
       end
     end
   end
