@@ -10,26 +10,31 @@ module Weeter
     def deletion?
       !@tweet_hash['delete'].nil?
     end
-    
+
     def retweeted?
       !@tweet_hash['retweeted_status'].nil? || @tweet_hash['text'] =~ /^RT @/i
     end
-    
+
     def reply?
       !@tweet_hash['in_reply_to_user_id_str'].nil? || @tweet_hash['text'] =~ /^@/
     end
-    
+
     def publishable?
       !retweeted? && !reply?
     end
-    
+
     def [](val)
       @tweet_hash[val]
     end
-    
+
     def to_json
       MultiJson.encode(@tweet_hash)
     end
-  end
 
+    def limiting_facets
+      self['hashtags'].map do |tag|
+        tag['text']
+      end
+    end
+  end
 end

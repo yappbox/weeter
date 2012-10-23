@@ -1,7 +1,12 @@
 require 'spec_helper'
 
 describe Weeter::Twitter::TweetConsumer do
-
+  let(:limiter) do
+    Weeter::Limitator.new({
+      max: 1,
+      duration: 10.minutes
+    })
+  end
 
   describe "auth" do
     it 'should use connect to JSON stream with auth options for the configuration' do
@@ -9,7 +14,7 @@ describe Weeter::Twitter::TweetConsumer do
       Twitter::JSONStream.stub!(:connect).and_return(@mock_stream)
 
       Weeter::Configuration::TwitterConfig.instance.stub!(:auth_options).and_return(:foo => :bar)
-      consumer = Weeter::Twitter::TweetConsumer.new(Weeter::Configuration::TwitterConfig.instance, mock('NotificationPlugin'))
+      consumer = Weeter::Twitter::TweetConsumer.new(Weeter::Configuration::TwitterConfig.instance, mock('NotificationPlugin'), limiter)
       Twitter::JSONStream.should_receive(:connect).with(hash_including(:foo => :bar))
       consumer.connect({'follow' => ['1','2']})
     end
@@ -25,7 +30,7 @@ describe Weeter::Twitter::TweetConsumer do
       @mock_stream.stub!(:each_item).and_yield(MultiJson.encode(@tweet_values))
       Twitter::JSONStream.stub!(:connect).and_return(@mock_stream)
       @client_proxy = mock('NotificationPlugin', :publish_tweet => nil)
-      @consumer = Weeter::Twitter::TweetConsumer.new(Weeter::Configuration::TwitterConfig.instance, @client_proxy)
+      @consumer = Weeter::Twitter::TweetConsumer.new(Weeter::Configuration::TwitterConfig.instance, @client_proxy, limiter)
     end
 
     after(:each) do
@@ -43,19 +48,19 @@ describe Weeter::Twitter::TweetConsumer do
     end
 
     it "should publish new tweet if publishable" do
-      mock_tweet = mock('tweet', :deletion? => false, :publishable? => true)
+      mock_tweet = mock('tweet', :deletion? => false, :publishable? => true, :limiting_facets => [])
       tweet_item = Weeter::TweetItem.stub!(:new).and_return mock_tweet
       @client_proxy.should_receive(:publish_tweet).with(mock_tweet)
     end
 
     it "should not publish unpublishable tweets" do
-      mock_tweet = mock('tweet', :deletion? => false, :publishable? => false, :[] => '')
+      mock_tweet = mock('tweet', :deletion? => false, :publishable? => false, :[] => '', :limiting_facets => [])
       tweet_item = Weeter::TweetItem.stub!(:new).and_return mock_tweet
       @client_proxy.should_not_receive(:publish_tweet).with(mock_tweet)
     end
 
     it "should delete deletion tweets" do
-      mock_tweet = mock('tweet', :deletion? => true, :publishable? => false)
+      mock_tweet = mock('tweet', :deletion? => true, :publishable? => false, :limiting_facets => [])
       tweet_item = Weeter::TweetItem.stub!(:new).and_return mock_tweet
       @client_proxy.should_receive(:delete_tweet).with(mock_tweet)
     end

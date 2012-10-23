@@ -5,9 +5,12 @@ module Weeter
   module Twitter
     class TweetConsumer
 
-      def initialize(twitter_config, notifier)
+      attr_reader :limiter
+
+      def initialize(twitter_config, notifier, limiter)
         @config = twitter_config
         @notifier = notifier
+        @limiter = limiter
       end
 
       def connect(filter_params)
@@ -19,7 +22,9 @@ module Weeter
           begin
             tweet_item = TweetItem.new(MultiJson.decode(item))
 
-            if tweet_item.deletion?
+            if limiter.limit?(tweet_item.limiting_facets)
+              rate_limit_tweet(tweet_item)
+            elsif tweet_item.deletion?
               @notifier.delete_tweet(tweet_item)
             elsif tweet_item.publishable?
               @notifier.publish_tweet(tweet_item)
@@ -63,6 +68,13 @@ module Weeter
         Weeter.logger.info("Ignoring tweet #{id} from user #{user_id}: #{text}")
       end
 
+      def rate_limit_tweet(tweet_item)
+        id = tweet_item['id_str']
+        text = tweet_item['text']
+        user_id = tweet_item['user']['id_str']
+
+        Weeter.logger.info("Rate Limiting tweet #{id} from user #{user_id}: #{text}")
+      end
     end
   end
 end

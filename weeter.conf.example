@@ -12,13 +12,19 @@ Weeter.configure do |conf|
   conf.twitter do |twitter|
     # For basic auth
     # twitter.basic_auth = {:username => 'johnny', :password => 'secret'}
-    
+
     # Or, for oauth
     twitter.oauth = {:consumer_key => ENV['WEETER_TWITTER_CONSUMER_KEY'],
                      :consumer_secret => ENV['WEETER_TWITTER_CONSUMER_SECRET'],
                      :access_key => ENV['WEETER_TWITTER_ACCESS_KEY'],
                      :access_secret => ENV['WEETER_TWITTER_ACCESS_SECRET']
                     }
+  end
+
+  conf.limiter do |limiter|
+    limiter.enabled = true
+    limter.max = 10
+    limter.duration = 10.minutes
   end
 
   conf.client_app do |client_app|
@@ -31,19 +37,19 @@ Weeter.configure do |conf|
     }
     client_app.publish_url = ENV['WEETER_CLIENT_PUBLISH_URL']
     client_app.delete_url = ENV['WEETER_CLIENT_DELETE_URL']
-    
+
     client_app.subscription_plugin = :http
     client_app.subscriptions_url = ENV['WEETER_CLIENT_SUBSCRIPTIONS_URL']
     client_app.subscription_updates_port = 7337 # only effective if running as a daemon
   end
-  
+
   # Alternately...
 
   # conf.client_app do |client_app|
   #   client_app.notification_plugin = :resque
   #   client_app.queue = 'weeter'
   #   client_app.redis_uri = 'redis://redistogo:abcdef0123456789abcdef0123456789@somehost.redistogo.com:9052/'
-  #   
+  #
   #   client_app.subscription_plugin = :redis
   #   client_app.subscriptions_key = 'weeter:subscriptions'
   #   client_app.subscriptions_changed_channel = 'weeter:subscriptions_changed'

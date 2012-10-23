@@ -5,7 +5,7 @@ module Weeter
     module Subscription
       class Redis
         include Weeter::Plugins::Net::Redis
-        
+
         def initialize(client_app_config)
           @config = client_app_config
         end
@@ -29,9 +29,9 @@ module Weeter
             end
           end
         end
-        
+
       protected
-        
+
         def redis
           @redis ||= create_redis_client
         end
@@ -39,7 +39,7 @@ module Weeter
         def pub_sub_redis
           @pub_sub_redis ||= create_redis_client
         end
-        
+
       end
     end
   end

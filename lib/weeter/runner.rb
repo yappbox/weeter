@@ -24,7 +24,18 @@ module Weeter
     end
 
   protected
-  
+
+    def limiter
+      @limiter ||= if @config.limiter.enabled
+        Weeter::Limitator.new({
+          max:      @config.limiter.max,
+          duration: @config.limiter.duration
+        })
+      else
+        Weeter::Limitator::UNLIMITED
+      end
+    end
+
     def notification_plugin
       @notification_plugin ||= Weeter::Plugins::NotificationPlugin.new(@config.client_app)
     end
@@ -34,7 +45,7 @@ module Weeter
     end
 
     def tweet_consumer
-      @tweet_consumer ||= Weeter::Twitter::TweetConsumer.new(@config.twitter, notification_plugin)
+      @tweet_consumer ||= Weeter::Twitter::TweetConsumer.new(@config.twitter, notification_plugin, limiter)
     end
   end
 end

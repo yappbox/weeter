@@ -9,6 +9,7 @@ module Weeter
   autoload 'Plugins', 'weeter/plugins'
   autoload 'Runner',  'weeter/runner'
   autoload 'Twitter', 'weeter/twitter'
+  autoload 'Limitator', 'weeter/limitator'
   autoload 'Configuration', 'weeter/configuration'
 
   def configure
