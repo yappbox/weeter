@@ -98,7 +98,7 @@ TODO
 
 Credits
 ======
-Thanks to Weplay for initial development and open sourcing Weeter. In particular, credit goes to Noah Davis and Joey Aghion. Further development by Luke Melia at Yapp.
+Thanks to Weplay for initial development and open sourcing Weeter. In particular, credit goes to Noah Davis and Joey Aghion. Further development by Luke Melia and Stefan Penner at Yapp.
 
 License
 =======
