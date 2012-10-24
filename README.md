@@ -61,6 +61,11 @@ For option :redis, also provide the following:
 
 * *redis_uri*: Redis connection string
 
+Rate Limiting
+-------------
+
+If you track high-volume hashtags, it's easy to bite off more than your infrastructure can chew. To help with this situation, Weeter has basic rate-limiting built-in. You can enable it and configure a max and time period in your conf file (see weeter.conf.example for syntax). If the max is reached in a given period, additional tweets with that hashtag that come in during the time period will be logged and discarded. New tweets will begin being allowed through at the beginning of the subsequent period.
+
 Running weeter
 ==============
 
