@@ -9,6 +9,18 @@ Weeter.configure do |conf|
   # To disable logging:
   # conf.log_path = false
 
+  # To hard limits number of subscriptions.
+  # If the limit has been reached it will log and error, and fairly truncate
+  # subscriptions.
+  #
+  #   default: nolimit = nil
+  #
+  # ** Please Note **
+  #   -  by default, twitter will reject connection attempts
+  #      with greater then 1000 subscriptions
+  #
+  # conf.subscriptions_limit = 1000
+
   conf.twitter do |twitter|
     # For basic auth
     # twitter.basic_auth = {:username => 'johnny', :password => 'secret'}

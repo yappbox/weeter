@@ -7,15 +7,23 @@ module Weeter
 
       attr_reader :limiter
 
-      def initialize(twitter_config, notifier, limiter)
+      def initialize(twitter_config, notifier, limiter, subscriptions_limit = nil)
         @config = twitter_config
         @notifier = notifier
         @limiter = limiter
+        @subscriptions_limit = subscriptions_limit
       end
 
       def connect(filter_params)
+        filter_params = limit_filter_params(filter_params) if @subscriptions_limit
         filter_params = clean_filter_params(filter_params)
-        connect_options = {:ssl => true, :params => filter_params, :method => 'POST'}.merge(@config.auth_options)
+
+        connect_options = {
+          ssl:    true,
+          params: filter_params,
+          method: 'POST'
+        }.merge(@config.auth_options)
+
         @stream = ::Twitter::JSONStream.connect(connect_options)
 
         @stream.each_item do |item|
@@ -53,6 +61,37 @@ module Weeter
       end
 
     protected
+
+      def limit_filter_params(params)
+        result = params.clone
+        result.default = []
+
+        follow_count = result['follow'].length
+        track_count = result['track'].length
+
+        total = follow_count + track_count
+
+        if total > @subscriptions_limit
+          Weeter.logger.error("Twitter Subscriptions are #{total}, but limited to #{@subscriptions_limit} subscriptions")
+        end
+
+        while total > 1000
+          if follow_count > track_count
+            follow_count -= 1
+          elsif track_count > follow_count
+            track_count -= 1
+          else
+            track_count -= 1
+          end
+
+          total = follow_count + track_count
+        end
+
+        result['track']  = result['track'][0...track_count]
+        result['follow'] = result['follow'][0...follow_count]
+
+        result
+      end
 
       def clean_filter_params(p)
         return {} if p.nil?

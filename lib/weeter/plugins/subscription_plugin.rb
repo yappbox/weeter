@@ -9,11 +9,11 @@ module Weeter
     class SubscriptionPlugin
       delegate :get_initial_filters, :to => :configured_plugin
       delegate :listen_for_filter_update, :to => :configured_plugin
-      
+
       def initialize(client_app_config)
         @config = client_app_config
       end
-    
+
     protected
       def configured_plugin
         @configured_plugin ||= begin

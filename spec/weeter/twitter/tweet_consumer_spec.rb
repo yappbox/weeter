@@ -20,6 +20,75 @@ describe Weeter::Twitter::TweetConsumer do
     end
   end
 
+  describe '#limit_filter_params' do
+
+    let(:client_proxy) { mock('NotificationPlugin', :publish_tweet => nil) }
+    let(:consumer) do
+      Weeter::Twitter::TweetConsumer.new(Weeter::Configuration::TwitterConfig.instance, client_proxy, limiter, 1000)
+    end
+
+    let(:track) {[]}
+    let(:follow) {[]}
+
+    let(:params) do
+      {
+        'follow' => follow,
+        'track'  => track
+      }
+    end
+
+    context 'limit not reached' do
+      it 'leaves the values alone' do
+        result = consumer.send(:limit_filter_params, params)
+        result.fetch('track').length.should == 0
+        result.fetch('follow').length.should == 0
+      end
+    end
+
+    context 'follow above' do
+      let(:follow) { (1..1001).to_a }
+
+      it 'it limits follows, but not tracks' do
+        result = consumer.send(:limit_filter_params, params)
+        result.fetch('follow').length.should == 1000
+        result.fetch('track').length.should == 0
+      end
+    end
+
+    context 'track above' do
+      let(:track) { (1..1001).to_a }
+
+      it 'limits tracks, but not follows' do
+        result = consumer.send(:limit_filter_params, params)
+        result.fetch('track').length.should == 1000
+        result.fetch('follow').length.should == 0
+      end
+    end
+
+    context 'they are equally over' do
+      let(:track)  { (1..600).to_a }
+      let(:follow) { (1..600).to_a }
+
+      it 'limits tracks, but not follows' do
+
+        result = consumer.send(:limit_filter_params, params)
+        result.fetch('track').length.should == 500
+        result.fetch('follow').length.should == 500
+      end
+    end
+
+    context 'track is more over' do
+      let(:track)  { (1..800).to_a }
+      let(:follow) { (1..300).to_a }
+
+      it 'limits tracks, but not follows' do
+        result = consumer.send(:limit_filter_params, params)
+        result.fetch('track').length.should == 700
+        result.fetch('follow').length.should == 300
+      end
+    end
+  end
+
   describe "connecting to twitter" do
 
     before(:each) do
