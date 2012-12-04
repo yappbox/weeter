@@ -20,7 +20,11 @@ module Weeter
     end
 
     def publishable?
-      !retweeted? && !reply?
+      !retweeted? && !reply? && !disconnect_notice? && !limit_notice?
+    end
+
+    def disconnect_notice?
+      !@tweet_hash['disconnect'].nil?
     end
 
     def limit_notice?

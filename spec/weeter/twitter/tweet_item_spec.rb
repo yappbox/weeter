@@ -45,6 +45,11 @@ describe Weeter::TweetItem do
       item.should_not be_publishable
     end
 
+    it "should not be publishable if disconnect message" do
+      item = Weeter::TweetItem.new({"disconnect" => {"code" => 7,"stream_name" => "YappBox-statuses668638","reason" => "admin logout"}})
+      item.should_not be_publishable
+    end
+
   end
 
   describe "limit_notice?" do

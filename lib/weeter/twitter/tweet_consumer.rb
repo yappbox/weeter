@@ -23,12 +23,14 @@ module Weeter
         filter_params = limit_filter_params(filter_params) if @subscriptions_limit
         filter_params = clean_filter_params(filter_params)
 
+
         connect_options = {
           ssl:    true,
           params: filter_params,
           method: 'POST'
         }.merge(@config.auth_options)
 
+        Weeter.logger.info("Connecting to Twitter stream...")
         @stream = ::Twitter::JSONStream.connect(connect_options)
 
         @stream.each_item do |item|
@@ -45,7 +47,7 @@ module Weeter
               ignore_tweet(tweet_item)
             end
           rescue => ex
-            Weeter.logger.error("Twitter stream tweet exception: #{ex.class.name}: #{ex.message}")
+            Weeter.logger.error("Twitter stream tweet exception: #{ex.class.name}: #{ex.message} #{tweet_item.to_json}")
           end
         end
 
@@ -59,9 +61,9 @@ module Weeter
       end
 
       def reconnect(filter_params)
-        @stream.unbind do
-          connect(filter_params)
-        end
+        @stream.stop
+        @stream.unbind
+        connect(filter_params)
       end
 
     protected
@@ -101,15 +103,17 @@ module Weeter
         return {} if p.nil?
         cleaned_params = {}
         cleaned_params['follow'] = p['follow'] if (p['follow'] || []).any?
-        cleaned_params['follow'] = cleaned_params['follow'].map(&:to_i)
+        cleaned_params['follow'] = cleaned_params['follow'].map(&:to_i) if cleaned_params['follow']
         cleaned_params['track'] = p['track'] if (p['track'] || []).any?
         cleaned_params
       end
 
       def ignore_tweet(tweet_item)
+        return if tweet_item.disconnect_notice?
         id = tweet_item['id_str']
         text = tweet_item['text']
-        user_id = tweet_item['user']['id_str']
+        user = tweet_item['user']
+        user_id = user['id_str'] if user
         Weeter.logger.info("Ignoring tweet #{id} from user #{user_id}: #{text}")
       end
 

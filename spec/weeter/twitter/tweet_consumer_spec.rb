@@ -10,7 +10,7 @@ describe Weeter::Twitter::TweetConsumer do
 
   describe "auth" do
     it 'should use connect to JSON stream with auth options for the configuration' do
-      @mock_stream = mock('JSONStream', :each_item => nil, :on_error => nil, :on_max_reconnects => nil)
+      @mock_stream = mock('JSONStream', :each_item => nil, :on_error => nil, :on_max_reconnects => nil, :on_close => nil)
       Twitter::JSONStream.stub!(:connect).and_return(@mock_stream)
 
       Weeter::Configuration::TwitterConfig.instance.stub!(:auth_options).and_return(:foo => :bar)
@@ -95,7 +95,7 @@ describe Weeter::Twitter::TweetConsumer do
       [@tweet_hash]
     }
     let(:mock_stream) {
-      mock_stream = mock('JSONStream', :on_error => nil, :on_max_reconnects => nil)
+      mock_stream = mock('JSONStream', :on_error => nil, :on_max_reconnects => nil, :on_close => nil)
       each_item_stub = mock_stream.stub!(:each_item)
       tweet_values.each do |t|
         each_item_stub.and_yield(MultiJson.encode(t))
