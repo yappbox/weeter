@@ -7,13 +7,16 @@ require 'active_support/core_ext/module/delegation'
 module Weeter
   module Plugins
     class NotificationPlugin
-      delegate :publish_tweet, :to => :configured_plugin
-      delegate :delete_tweet, :to => :configured_plugin
-      
+      delegate :publish_tweet,
+               :delete_tweet,
+               :notify_rate_limiting_initiated,
+               :notify_missed_tweets,
+            :to => :configured_plugin
+
       def initialize(client_app_config)
         @config = client_app_config
       end
-      
+
     protected
       def configured_plugin
         @configured_plugin ||= begin
