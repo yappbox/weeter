@@ -4,8 +4,13 @@ require 'multi_json'
 module Weeter
   module Twitter
     class TweetConsumer
+      extend ::Forwardable
 
-      attr_reader :limiter
+      attr_reader :limiter, :notifier
+      def_delegators :@notifier, :notify_missed_tweets,
+                                 :notify_rate_limiting_initiated,
+                                 :delete_tweet,
+                                 :publish_tweet
 
       def initialize(twitter_config, notifier, limiter, subscriptions_limit = nil)
         @config = twitter_config
@@ -30,14 +35,12 @@ module Weeter
           begin
             tweet_item = TweetItem.new(MultiJson.decode(item))
 
-            if tweet_item.deletion?
-              @notifier.delete_tweet(tweet_item)
+            if tweet_item.limit_notice?
+              notify_missed_tweets(tweet_item)
+            elsif tweet_item.deletion?
+              delete_tweet(tweet_item)
             elsif tweet_item.publishable?
-              if limiter.limit?(*tweet_item.limiting_facets)
-                rate_limit_tweet(tweet_item)
-              else
-                @notifier.publish_tweet(tweet_item)
-              end
+              publish_or_rate_limit(tweet_item)
             else
               ignore_tweet(tweet_item)
             end
@@ -116,6 +119,32 @@ module Weeter
 
         Weeter.logger.info("Rate Limiting tweet #{id} from user #{user_id}: #{text}")
       end
+
+      def publish_or_rate_limit(tweet_item)
+        limit_result = limiter.process(*tweet_item.limiting_facets)
+        case limit_result.status
+        when Weeter::Limitator::INITIATE_LIMITING
+          notify_rate_limiting_initiated(tweet_item, limit_result.limited_keys)
+          rate_limit_tweet(tweet_item)
+        when Weeter::Limitator::CONTINUE_LIMITING
+          rate_limit_tweet(tweet_item)
+        when Weeter::Limitator::DO_NOT_LIMIT
+          publish_tweet(tweet_item)
+        end
+      end
+
+      # def publish_or_rate_limit(tweet_item)
+      #   status, limited_facets = limit_status(*tweet_item.limiting_facets)
+      #   case status
+      #   when Weeter::Limitator::INITIATE_LIMITING
+      #     notify_rate_limiting_initiated(tweet_item, limited_facets)
+      #     rate_limit_tweet(tweet_item)
+      #   when Weeter::Limitator::CONTINUE_LIMITING
+      #     rate_limit_tweet(tweet_item)
+      #   when Weeter::Limitator::DO_NOT_LIMIT
+      #     publish_tweet(tweet_item)
+      #   end
+      # end
     end
   end
 end

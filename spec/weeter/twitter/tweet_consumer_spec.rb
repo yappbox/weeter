@@ -91,13 +91,22 @@ describe Weeter::Twitter::TweetConsumer do
 
   describe "connecting to twitter" do
 
+    let(:tweet_values) {
+      [@tweet_hash]
+    }
+    let(:mock_stream) {
+      mock_stream = mock('JSONStream', :on_error => nil, :on_max_reconnects => nil)
+      each_item_stub = mock_stream.stub!(:each_item)
+      tweet_values.each do |t|
+        each_item_stub.and_yield(MultiJson.encode(t))
+      end
+      mock_stream
+    }
     before(:each) do
       @filter_params = {'follow' => ['1','2','3']}
       Weeter::Configuration::TwitterConfig.instance.stub!(:auth_options).and_return(:foo => :bar)
-      @tweet_values = {'text' => "Hey", 'id_str' => "123", 'user' => {'id_str' => "1"}}
-      @mock_stream = mock('JSONStream', :on_error => nil, :on_max_reconnects => nil)
-      @mock_stream.stub!(:each_item).and_yield(MultiJson.encode(@tweet_values))
-      Twitter::JSONStream.stub!(:connect).and_return(@mock_stream)
+      @tweet_hash = {'text' => "Hey", 'id_str' => "123", 'user' => {'id_str' => "1"}}
+      Twitter::JSONStream.stub!(:connect).and_return(mock_stream)
       @client_proxy = mock('NotificationPlugin', :publish_tweet => nil)
       @consumer = Weeter::Twitter::TweetConsumer.new(Weeter::Configuration::TwitterConfig.instance, @client_proxy, limiter)
     end
@@ -107,7 +116,7 @@ describe Weeter::Twitter::TweetConsumer do
     end
 
     it "should instantiate a TweetItem" do
-      tweet_item = Weeter::TweetItem.new(@tweet_values)
+      tweet_item = Weeter::TweetItem.new(@tweet_hash)
       Weeter::TweetItem.should_receive(:new).with({'text' => "Hey", 'id_str' => "123", 'user' => {'id_str' => "1"}}).and_return(tweet_item)
     end
 
@@ -117,21 +126,40 @@ describe Weeter::Twitter::TweetConsumer do
     end
 
     it "should publish new tweet if publishable" do
-      mock_tweet = mock('tweet', :deletion? => false, :publishable? => true, :limiting_facets => [])
-      tweet_item = Weeter::TweetItem.stub!(:new).and_return mock_tweet
+      mock_tweet = mock('tweet', :deletion? => false, :publishable? => true, :limit_notice? => false, :limiting_facets => [])
+      Weeter::TweetItem.stub!(:new).and_return(mock_tweet)
       @client_proxy.should_receive(:publish_tweet).with(mock_tweet)
     end
 
     it "should not publish unpublishable tweets" do
-      mock_tweet = mock('tweet', :deletion? => false, :publishable? => false, :[] => '', :limiting_facets => [])
-      tweet_item = Weeter::TweetItem.stub!(:new).and_return mock_tweet
+      mock_tweet = mock('tweet', :deletion? => false, :publishable? => false, :limit_notice? => false, :[] => '', :limiting_facets => [])
+      Weeter::TweetItem.stub!(:new).and_return mock_tweet
       @client_proxy.should_not_receive(:publish_tweet).with(mock_tweet)
     end
 
     it "should delete deletion tweets" do
-      mock_tweet = mock('tweet', :deletion? => true, :publishable? => false, :limiting_facets => [])
-      tweet_item = Weeter::TweetItem.stub!(:new).and_return mock_tweet
+      mock_tweet = mock('tweet', :deletion? => true, :publishable? => false, :limit_notice? => false, :limiting_facets => [])
+      Weeter::TweetItem.stub!(:new).and_return mock_tweet
       @client_proxy.should_receive(:delete_tweet).with(mock_tweet)
+    end
+
+    it "should notify when stream is limited by Twitter" do
+      tweet_item = Weeter::TweetItem.new({'limit' => { 'track' => 65 } })
+      Weeter::TweetItem.stub!(:new).and_return(tweet_item)
+      @client_proxy.should_receive(:notify_missed_tweets).with(tweet_item)
+    end
+
+    context "when weeter is initiating rate-limiting on a facet" do
+      let(:tweet_values) {
+        [@tweet_hash, @tweet_hash]
+      }
+      it "should notify that rate limiting is being initiated" do
+        tweet_item1 = mock('tweet', :deletion? => false, :publishable? => true, :limit_notice? => false, :limiting_facets => ['key'], :[] => '1')
+        tweet_item2 = mock('tweet', :deletion? => false, :publishable? => true, :limit_notice? => false, :limiting_facets => ['key'], :[] => '2')
+        Weeter::TweetItem.stub!(:new).and_return(tweet_item1, tweet_item2)
+
+        @client_proxy.should_receive(:notify_rate_limiting_initiated).with(tweet_item2, ['key'])
+      end
     end
   end
 

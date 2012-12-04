@@ -3,7 +3,7 @@ module Weeter
     module Notification
       class Resque
         include Weeter::Plugins::Net::Redis
-        
+
         def initialize(client_app_config)
           @config = client_app_config
         end
@@ -20,12 +20,26 @@ module Weeter
           enqueue(resque_job)
         end
 
+        def notify_missed_tweets(tweet_item)
+          resque_job = %Q|{"class":"WeeterMissedTweetsJob","args":[#{tweet_item.to_json}]}|
+          Weeter.logger.info("Notifying of missed tweets (#{tweet_item.missed_tweets_count}).")
+          enqueue(resque_job)
+        end
+
+        def notify_rate_limiting_initiated(tweet_item, limited_keys)
+          payload = tweet_item.to_hash.merge(:limited_keys => limited_keys)
+          payload_json = MultiJson.encode(payload)
+          resque_job = %Q|{"class":"WeeterRateLimitingInitiatedJob","args":[#{payload_json}]}|
+          Weeter.logger.info("Initiated rate limiting with tweet: #{payload_json}")
+          enqueue(resque_job)
+        end
+
       protected
-      
+
         def redis
           @redis ||= create_redis_client
         end
-      
+
         def enqueue(job)
           redis.rpush(queue_key, job)
         end

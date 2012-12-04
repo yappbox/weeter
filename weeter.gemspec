@@ -31,4 +31,5 @@ Gem::Specification.new do |s|
   s.add_dependency('lukemelia-twitter-stream', '~> 0.1.15')
 
   s.add_development_dependency 'rspec', '~> 2.6.0'
+  s.add_development_dependency 'ZenTest'
 end

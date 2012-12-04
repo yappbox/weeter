@@ -23,12 +23,25 @@ module Weeter
       !retweeted? && !reply?
     end
 
+    def limit_notice?
+      !@tweet_hash['limit'].nil?
+    end
+
+    def missed_tweets_count
+      return nil unless limit_notice?
+      @tweet_hash['limit']['track']
+    end
+
     def [](val)
       @tweet_hash[val]
     end
 
     def to_json
       MultiJson.encode(@tweet_hash)
+    end
+
+    def to_hash
+      @tweet_hash
     end
 
     def limiting_facets

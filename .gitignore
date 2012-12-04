@@ -1,8 +1,10 @@
 .rvmrc
 .bundle
+.rspec
 weeter.pid
 weeter.conf
 log/*.log
 vendor/bundle
 .DS_Store
 Gemfile.lock
+pkg

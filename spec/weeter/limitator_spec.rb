@@ -17,46 +17,57 @@ describe Weeter::Limitator do
     it { limitator.should be }
   end
 
-  describe '#limit?' do
+  describe '#limit_status' do
 
     subject do
-      limitator.limit?(*keys)
+      limitator.process(*keys)
     end
 
     context 'max: 0' do
       let(:max) { 0 }
-      it { should be_true }
+      its(:status) { should == Weeter::Limitator::INITIATE_LIMITING }
+      its(:limited_keys) { should == keys }
 
       context 'no keys' do
         let(:keys) { [] }
-        it { should be_false }
+        its(:status) { should == Weeter::Limitator::DO_NOT_LIMIT }
+        its(:limited_keys) { should == nil }
+      end
+
+      context 'two keys' do
+        let(:keys) { ['key', 'key2'] }
+        its(:status) { should == Weeter::Limitator::INITIATE_LIMITING }
+        its(:limited_keys) { should == keys }
       end
     end
 
     context 'max: 1' do
       let(:max) { 1 }
 
-      it { should be_false }
+      its(:status) { should == Weeter::Limitator::DO_NOT_LIMIT }
+      its(:limited_keys) { should == nil }
 
       context 'two keys within max' do
         let(:keys) { ['key', 'key2'] }
 
-        it { should be_false }
+        its(:status) { should == Weeter::Limitator::DO_NOT_LIMIT }
       end
 
       context 'no keys' do
         let(:keys) { [] }
-        it { should be_false }
+        its(:status) { should == Weeter::Limitator::DO_NOT_LIMIT }
+        its(:limited_keys) { should == nil }
       end
 
-      context 'one key outside max' do
+      context 'one key just outside max' do
         before do
           max.times do
-            limitator.limit?(*keys)
+            limitator.process(*keys)
           end
         end
 
-        it { should be_true }
+        its(:status) { should == Weeter::Limitator::INITIATE_LIMITING }
+        its(:limited_keys) { should == keys }
 
         context 'outside duration' do
           let(:some_time_after_duration) do
@@ -67,31 +78,71 @@ describe Weeter::Limitator do
             limitator.stub(:now).and_return(some_time_after_duration)
           end
 
-          it { should be_false }
+          its(:status) { should == Weeter::Limitator::DO_NOT_LIMIT }
+          its(:limited_keys) { should == nil }
         end
       end
 
-      context 'two keys outside' do
+      context 'two keys just past max' do
         let(:keys) { ['key', 'key2'] }
 
         before do
-          limitator.limit?(*keys)
+          limitator.process(*keys)
         end
 
-        it { should be_true }
+        its(:status) { should == Weeter::Limitator::INITIATE_LIMITING }
+        its(:limited_keys) { should == keys }
       end
 
-      context 'one key outside max: 1, one key within max: 1' do
+      context 'two keys past max' do
+        let(:keys) { ['key', 'key2'] }
+
+        before do
+          limitator.process(*keys)
+          limitator.process(*keys)
+        end
+
+        its(:status) { should == Weeter::Limitator::CONTINUE_LIMITING }
+        its(:limited_keys) { should == keys }
+      end
+
+      context 'one key just past max: 1, one key within max: 1' do
         let(:max) { 1 }
         let(:keys) { ['key', 'key2'] }
 
         before do
-          limitator.limit?(*[keys.first])
+          limitator.process(keys.first)
         end
 
-        it { should be_true }
+        its(:status) { should == Weeter::Limitator::INITIATE_LIMITING }
+        its(:limited_keys) { should == [keys.first] }
+      end
+
+      context 'one key past max: 1, one key within max: 1' do
+        let(:max) { 1 }
+        let(:keys) { ['key', 'key2'] }
+
+        before do
+          limitator.process(keys.first)
+          limitator.process(keys.first)
+        end
+
+        its(:status) { should == Weeter::Limitator::CONTINUE_LIMITING }
+        its(:limited_keys) { should == [keys.first] }
+      end
+
+      context 'one key past max: 1, one key just past max: 1' do
+        let(:max) { 1 }
+        let(:keys) { ['key', 'key2'] }
+
+        before do
+          limitator.process(*[keys.first])
+          limitator.process(*[keys.first, keys.last])
+        end
+
+        its(:status) { should == Weeter::Limitator::INITIATE_LIMITING }
+        its(:limited_keys) { should == keys }
       end
     end
   end
 end
-
