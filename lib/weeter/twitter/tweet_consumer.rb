@@ -59,8 +59,9 @@ module Weeter
       end
 
       def reconnect(filter_params)
-        @stream.stop
-        connect(filter_params)
+        @stream.unbind do
+          connect(filter_params)
+        end
       end
 
     protected
