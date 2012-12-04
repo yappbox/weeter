@@ -132,19 +132,6 @@ module Weeter
           publish_tweet(tweet_item)
         end
       end
-
-      # def publish_or_rate_limit(tweet_item)
-      #   status, limited_facets = limit_status(*tweet_item.limiting_facets)
-      #   case status
-      #   when Weeter::Limitator::INITIATE_LIMITING
-      #     notify_rate_limiting_initiated(tweet_item, limited_facets)
-      #     rate_limit_tweet(tweet_item)
-      #   when Weeter::Limitator::CONTINUE_LIMITING
-      #     rate_limit_tweet(tweet_item)
-      #   when Weeter::Limitator::DO_NOT_LIMIT
-      #     publish_tweet(tweet_item)
-      #   end
-      # end
     end
   end
 end
