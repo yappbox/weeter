@@ -11,6 +11,7 @@ module Weeter
   autoload 'Twitter', 'weeter/twitter'
   autoload 'Limitator', 'weeter/limitator'
   autoload 'Configuration', 'weeter/configuration'
+  autoload 'TweetItem', 'weeter/tweet_item'
 
   def configure
     yield Configuration.instance

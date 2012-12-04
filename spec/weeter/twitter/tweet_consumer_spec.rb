@@ -132,7 +132,7 @@ describe Weeter::Twitter::TweetConsumer do
     end
 
     it "should not publish unpublishable tweets" do
-      mock_tweet = mock('tweet', :deletion? => false, :publishable? => false, :limit_notice? => false, :[] => '', :limiting_facets => [])
+      mock_tweet = mock('tweet', :deletion? => false, :publishable? => false, :limit_notice? => false, :[] => '', :limiting_facets => [], :disconnect_notice? => false)
       Weeter::TweetItem.stub!(:new).and_return mock_tweet
       @client_proxy.should_not_receive(:publish_tweet).with(mock_tweet)
     end
