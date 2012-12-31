@@ -45,7 +45,7 @@ module Weeter
     end
 
     def tweet_consumer
-      @tweet_consumer ||= Weeter::Twitter::TweetConsumer.new(@config.twitter, notification_plugin, limiter, @config.subscriptions_limit)
+      @tweet_consumer ||= Weeter::Twitter::TweetConsumer.new(@config.twitter, notification_plugin, limiter)
     end
   end
 end

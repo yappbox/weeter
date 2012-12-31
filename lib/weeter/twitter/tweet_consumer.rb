@@ -5,6 +5,8 @@ module Weeter
   module Twitter
     class TweetConsumer
       extend ::Forwardable
+      TRACK_LIMIT = 400
+      FOLLOW_LIMIT = 5000
 
       attr_reader :limiter, :notifier
       def_delegators :@notifier, :notify_missed_tweets,
@@ -12,15 +14,14 @@ module Weeter
                                  :delete_tweet,
                                  :publish_tweet
 
-      def initialize(twitter_config, notifier, limiter, subscriptions_limit = nil)
+      def initialize(twitter_config, notifier, limiter)
         @config = twitter_config
         @notifier = notifier
         @limiter = limiter
-        @subscriptions_limit = subscriptions_limit
       end
 
       def connect(filter_params)
-        filter_params = limit_filter_params(filter_params) if @subscriptions_limit
+        filter_params = limit_filter_params(filter_params)
         filter_params = clean_filter_params(filter_params)
 
 
@@ -75,26 +76,15 @@ module Weeter
         follow_count = result['follow'].length
         track_count = result['track'].length
 
-        total = follow_count + track_count
-
-        if total > @subscriptions_limit
-          Weeter.logger.error("Twitter Subscriptions are #{total}, but limited to #{@subscriptions_limit} subscriptions")
+        if follow_count > FOLLOW_LIMIT
+          Weeter.logger.error("Twitter Subscriptions include #{follow_count} follows, but are limited to #{FOLLOW_LIMIT}")
+          result['follow']  = result['follow'][0...FOLLOW_LIMIT]
         end
 
-        while total > 1000
-          if follow_count > track_count
-            follow_count -= 1
-          elsif track_count > follow_count
-            track_count -= 1
-          else
-            track_count -= 1
-          end
-
-          total = follow_count + track_count
+        if track_count > TRACK_LIMIT
+          Weeter.logger.error("Twitter Subscriptions include #{track_count} tracks, but are limited to #{TRACK_LIMIT}")
+          result['track']  = result['track'][0...TRACK_LIMIT]
         end
-
-        result['track']  = result['track'][0...track_count]
-        result['follow'] = result['follow'][0...follow_count]
 
         result
       end

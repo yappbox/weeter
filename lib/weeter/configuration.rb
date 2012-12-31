@@ -4,7 +4,7 @@ module Weeter
 
   class Configuration
     include Singleton
-    attr_accessor :log_path, :subscriptions_limit
+    attr_accessor :log_path
 
     autoload :ClientAppConfig, 'weeter/configuration/client_app_config'
     autoload :TwitterConfig,   'weeter/configuration/twitter_config'
