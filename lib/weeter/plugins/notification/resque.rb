@@ -45,7 +45,7 @@ module Weeter
         end
 
         def queue_key
-          "resque:queue:#{@config.queue}"
+          "#{@config.redis_namespace}:#{@config.queue}"
         end
       end
     end
