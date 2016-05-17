@@ -8,7 +8,7 @@ module Weeter
         def self.get(config, url, params = {})
           request(config, :get, url, params)
         end
-    
+
         def self.put(config, url, params = {})
           request(config, :put, url, params)
         end
@@ -16,11 +16,11 @@ module Weeter
         def self.post(config, url, params = {})
           request(config, :post, url, params)
         end
-    
+
         def self.delete(config, url, params = {})
           request(config, :delete, url, params)
         end
-    
+
         def self.request(config, method, url, params = {})
           if method == :post
             request_options = {:body => params}
@@ -32,7 +32,7 @@ module Weeter
         end
 
         def self.oauth_header(config, uri, params, http_method)
-          ::SimpleOauth::Header.new(http_method, uri, params, config.oauth).to_s
+          ::SimpleOAuth::Header.new(http_method, uri, params, config.oauth).to_s
         end
       end
     end
