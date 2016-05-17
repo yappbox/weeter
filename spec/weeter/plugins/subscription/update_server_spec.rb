@@ -5,24 +5,24 @@ module Weeter
       describe Http::UpdateServer do
         before(:each) do
           @new_ids = [1,2,3]
-          @tweet_consumer = mock('TweetConsumer', :reconnect => nil)
+          @tweet_consumer = double('TweetConsumer', :reconnect => nil)
           @tweet_server = Http::UpdateServer.new(nil)
           @tweet_server.instance_variable_set('@http_post_content', MultiJson.encode(@new_ids))
           @tweet_server.tweet_consumer = @tweet_consumer
-          @response = mock('DelegatedHttpResponse', :send_response => nil)
-          EM::DelegatedHttpResponse.stub!(:new).and_return(@response)
+          @response = double('DelegatedHttpResponse', :send_response => nil)
+          expect(EM::DelegatedHttpResponse).to receive(:new).and_return(@response)
         end
-  
+
         after(:each) do
           @tweet_server.process_http_request
         end
-  
-        it "should process http request" do
-          @tweet_consumer.should_receive(:reconnect).with(@new_ids)
+
+        it "processes http request" do
+          expect(@tweet_consumer).to receive(:reconnect).with(@new_ids)
         end
-  
-        it "should send response" do
-          @response.should_receive(:send_response)
+
+        it "sends the response" do
+          expect(@response). to receive(:send_response)
         end
       end
     end

@@ -1,4 +1,4 @@
-require 'twitter/json_stream'
+require 'tweetstream'
 require 'multi_json'
 
 module Weeter
@@ -24,17 +24,18 @@ module Weeter
         filter_params = limit_filter_params(filter_params)
         filter_params = clean_filter_params(filter_params)
 
-
-        connect_options = {
-          ssl:    true,
-          params: filter_params,
-          method: 'POST'
-        }.merge(@config.auth_options)
+        TweetStream.configure do |config|
+          config.consumer_key       = @config.auth_options['consumer_key']
+          config.consumer_secret    = @config.auth_options['consumer_secret']
+          config.oauth_token        = @config.auth_options['oauth_token']
+          config.oauth_token_secret = @config.auth_options['oauth_token_secret']
+          config.auth_method        = :oauth
+        end
 
         Weeter.logger.info("Connecting to Twitter stream...")
-        @stream = ::Twitter::JSONStream.connect(connect_options)
+        @stream = ::TweetStream.new
 
-        @stream.each_item do |item|
+        @stream.filter(filter_params) do |item|
           begin
             tweet_item = TweetItem.new(MultiJson.decode(item))
 
@@ -56,9 +57,9 @@ module Weeter
           Weeter.logger.error("Twitter stream error: #{msg}. Connect options were #{connect_options.inspect}")
         end
 
-        @stream.on_max_reconnects do |timeout, retries|
-          Weeter.logger.error("Twitter stream max-reconnects reached: timeout=#{timeout}, retries=#{retries}")
-        end
+        # @stream.on_max_reconnects do |timeout, retries|
+        #   Weeter.logger.error("Twitter stream max-reconnects reached: timeout=#{timeout}, retries=#{retries}")
+        # end
       end
 
       def reconnect(filter_params)

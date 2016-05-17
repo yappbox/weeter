@@ -28,8 +28,9 @@ Gem::Specification.new do |s|
   s.add_dependency('i18n', "~> 0.6.0")
   s.add_dependency('activesupport', ">= 3.1.1")
   s.add_dependency("simple_oauth", '>= 0.1.5')
-  s.add_dependency('lukemelia-twitter-stream', '~> 0.1.15')
+  s.add_dependency('tweetstream', '~> 2.6.1')
 
-  s.add_development_dependency 'rspec', '~> 2.6.0'
+  s.add_development_dependency 'rspec', '~> 3.4.0'
+  s.add_development_dependency 'byebug', '~> 2.4.1'
   s.add_development_dependency 'ZenTest'
 end

@@ -1,4 +1,5 @@
 require 'spec_helper'
+require 'tweetstream'
 
 describe Weeter::Twitter::TweetConsumer do
   let(:limiter) do
@@ -9,20 +10,20 @@ describe Weeter::Twitter::TweetConsumer do
   end
 
   describe "auth" do
-    it 'should use connect to JSON stream with auth options for the configuration' do
-      @mock_stream = mock('JSONStream', :each_item => nil, :on_error => nil, :on_max_reconnects => nil, :on_close => nil)
-      Twitter::JSONStream.stub!(:connect).and_return(@mock_stream)
+    it 'connects to JSON stream with auth options for the configuration' do
+      mock_client = double('TweetStream::Client', on_error: nil)
+      expect(TweetStream::Client).to receive(:new).and_return(mock_client)
 
-      Weeter::Configuration::TwitterConfig.instance.stub!(:auth_options).and_return(:foo => :bar)
-      consumer = Weeter::Twitter::TweetConsumer.new(Weeter::Configuration::TwitterConfig.instance, mock('NotificationPlugin'), limiter)
-      Twitter::JSONStream.should_receive(:connect).with(hash_including(:foo => :bar))
+      expect(Weeter::Configuration::TwitterConfig.instance).to receive(:auth_options).and_return(:foo => :bar).at_least(:once)
+      consumer = Weeter::Twitter::TweetConsumer.new(Weeter::Configuration::TwitterConfig.instance, double('NotificationPlugin'), limiter)
+      expect(mock_client).to receive(:filter).with(hash_including('follow' => [1, 2]))
       consumer.connect({'follow' => ['1','2']})
     end
   end
 
   describe '#limit_filter_params' do
 
-    let(:client_proxy) { mock('NotificationPlugin', :publish_tweet => nil) }
+    let(:client_proxy) { double('NotificationPlugin', :publish_tweet => nil) }
     let(:consumer) do
       Weeter::Twitter::TweetConsumer.new(Weeter::Configuration::TwitterConfig.instance, client_proxy, limiter)
     end
@@ -40,8 +41,8 @@ describe Weeter::Twitter::TweetConsumer do
     context 'limit not reached' do
       it 'leaves the values alone' do
         result = consumer.send(:limit_filter_params, params)
-        result.fetch('track').length.should == 0
-        result.fetch('follow').length.should == 0
+        expect(result.fetch('track').length).to eq(0)
+        expect(result.fetch('follow').length).to eq(0)
       end
     end
 
@@ -50,8 +51,8 @@ describe Weeter::Twitter::TweetConsumer do
 
       it 'it limits follows, but not tracks' do
         result = consumer.send(:limit_filter_params, params)
-        result.fetch('follow').length.should == 5000
-        result.fetch('track').length.should == 0
+        expect(result.fetch('follow').length).to eq(5000)
+        expect(result.fetch('track').length).to eq(0)
       end
     end
 
@@ -60,8 +61,8 @@ describe Weeter::Twitter::TweetConsumer do
 
       it 'limits tracks, but not follows' do
         result = consumer.send(:limit_filter_params, params)
-        result.fetch('track').length.should == 400
-        result.fetch('follow').length.should == 0
+        expect(result.fetch('track').length).to eq(400)
+        expect(result.fetch('follow').length).to eq(0)
       end
     end
 
@@ -72,8 +73,8 @@ describe Weeter::Twitter::TweetConsumer do
       it 'limits both' do
 
         result = consumer.send(:limit_filter_params, params)
-        result.fetch('track').length.should == 400
-        result.fetch('follow').length.should == 5000
+        expect(result.fetch('track').length).to eq(400)
+        expect(result.fetch('follow').length).to eq(5000)
       end
     end
   end
@@ -83,20 +84,21 @@ describe Weeter::Twitter::TweetConsumer do
     let(:tweet_values) {
       [@tweet_hash]
     }
-    let(:mock_stream) {
-      mock_stream = mock('JSONStream', :on_error => nil, :on_max_reconnects => nil, :on_close => nil)
-      each_item_stub = mock_stream.stub!(:each_item)
+    let(:mock_client) {
+      client = double('TweetStream::Client', on_error: nil)
+      filter_stub = {}
+      client_expectation = expect(client).to receive(:filter).with(hash_including('follow' => [1, 2, 3])).and_return(filter_stub)
       tweet_values.each do |t|
-        each_item_stub.and_yield(MultiJson.encode(t))
+        client_expectation.and_yield(MultiJson.encode(t))
       end
-      mock_stream
+      client
     }
     before(:each) do
-      @filter_params = {'follow' => ['1','2','3']}
-      Weeter::Configuration::TwitterConfig.instance.stub!(:auth_options).and_return(:foo => :bar)
       @tweet_hash = {'text' => "Hey", 'id_str' => "123", 'user' => {'id_str' => "1"}}
-      Twitter::JSONStream.stub!(:connect).and_return(mock_stream)
-      @client_proxy = mock('NotificationPlugin', :publish_tweet => nil)
+      expect(TweetStream::Client).to receive(:new).and_return(mock_client)
+      @filter_params = {'follow' => ['1','2','3']}
+      expect(Weeter::Configuration::TwitterConfig.instance).to receive(:auth_options).and_return(:foo => :bar).at_least(:once)
+      @client_proxy = double('NotificationPlugin', :publish_tweet => nil)
       @consumer = Weeter::Twitter::TweetConsumer.new(Weeter::Configuration::TwitterConfig.instance, @client_proxy, limiter)
     end
 
@@ -104,50 +106,45 @@ describe Weeter::Twitter::TweetConsumer do
       @consumer.connect(@filter_params)
     end
 
-    it "should instantiate a TweetItem" do
+    it "instantiates a TweetItem" do
       tweet_item = Weeter::TweetItem.new(@tweet_hash)
-      Weeter::TweetItem.should_receive(:new).with({'text' => "Hey", 'id_str' => "123", 'user' => {'id_str' => "1"}}).and_return(tweet_item)
+      expect(Weeter::TweetItem).to receive(:new).with({'text' => "Hey", 'id_str' => "123", 'user' => {'id_str' => "1"}}).and_return(tweet_item)
     end
 
-    it "should connect to a Twitter JSON stream" do
-      Twitter::JSONStream.should_receive(:connect).
-        with(:ssl => true, :foo => :bar, :params => {'follow' => [1,2,3]}, :method => 'POST')
+    it "publishes new tweet if publishable" do
+      mock_tweet = double('tweet', :deletion? => false, :publishable? => true, :limit_notice? => false, :limiting_facets => [])
+      expect(Weeter::TweetItem).to receive(:new).and_return(mock_tweet)
+      expect(@client_proxy).to receive(:publish_tweet).with(mock_tweet)
     end
 
-    it "should publish new tweet if publishable" do
-      mock_tweet = mock('tweet', :deletion? => false, :publishable? => true, :limit_notice? => false, :limiting_facets => [])
-      Weeter::TweetItem.stub!(:new).and_return(mock_tweet)
-      @client_proxy.should_receive(:publish_tweet).with(mock_tweet)
+    it "does not publish unpublishable tweets" do
+      mock_tweet = double('tweet', :deletion? => false, :publishable? => false, :limit_notice? => false, :[] => '', :limiting_facets => [], :disconnect_notice? => false)
+      expect(Weeter::TweetItem).to receive(:new).and_return mock_tweet
+      expect(@client_proxy).to_not receive(:publish_tweet).with(mock_tweet)
     end
 
-    it "should not publish unpublishable tweets" do
-      mock_tweet = mock('tweet', :deletion? => false, :publishable? => false, :limit_notice? => false, :[] => '', :limiting_facets => [], :disconnect_notice? => false)
-      Weeter::TweetItem.stub!(:new).and_return mock_tweet
-      @client_proxy.should_not_receive(:publish_tweet).with(mock_tweet)
+    it "deletes deletion tweets" do
+      mock_tweet = double('tweet', :deletion? => true, :publishable? => false, :limit_notice? => false, :limiting_facets => [])
+      expect(Weeter::TweetItem).to receive(:new).and_return mock_tweet
+      expect(@client_proxy).to receive(:delete_tweet).with(mock_tweet)
     end
 
-    it "should delete deletion tweets" do
-      mock_tweet = mock('tweet', :deletion? => true, :publishable? => false, :limit_notice? => false, :limiting_facets => [])
-      Weeter::TweetItem.stub!(:new).and_return mock_tweet
-      @client_proxy.should_receive(:delete_tweet).with(mock_tweet)
-    end
-
-    it "should notify when stream is limited by Twitter" do
+    it "notifies when stream is limited by Twitter" do
       tweet_item = Weeter::TweetItem.new({'limit' => { 'track' => 65 } })
-      Weeter::TweetItem.stub!(:new).and_return(tweet_item)
-      @client_proxy.should_receive(:notify_missed_tweets).with(tweet_item)
+      expect(Weeter::TweetItem).to receive(:new).and_return(tweet_item)
+      expect(@client_proxy).to receive(:notify_missed_tweets).with(tweet_item)
     end
 
     context "when weeter is initiating rate-limiting on a facet" do
       let(:tweet_values) {
         [@tweet_hash, @tweet_hash]
       }
-      it "should notify that rate limiting is being initiated" do
-        tweet_item1 = mock('tweet', :deletion? => false, :publishable? => true, :limit_notice? => false, :limiting_facets => ['key'], :[] => '1')
-        tweet_item2 = mock('tweet', :deletion? => false, :publishable? => true, :limit_notice? => false, :limiting_facets => ['key'], :[] => '2')
-        Weeter::TweetItem.stub!(:new).and_return(tweet_item1, tweet_item2)
+      it "notifies that rate limiting is being initiated" do
+        tweet_item1 = double('tweet', :deletion? => false, :publishable? => true, :limit_notice? => false, :limiting_facets => ['key'], :[] => '1')
+        tweet_item2 = double('tweet', :deletion? => false, :publishable? => true, :limit_notice? => false, :limiting_facets => ['key'], :[] => '2')
+        expect(Weeter::TweetItem).to receive(:new).and_return(tweet_item1, tweet_item2)
 
-        @client_proxy.should_receive(:notify_rate_limiting_initiated).with(tweet_item2, ['key'])
+        expect(@client_proxy).to receive(:notify_rate_limiting_initiated).with(tweet_item2, ['key'])
       end
     end
   end
