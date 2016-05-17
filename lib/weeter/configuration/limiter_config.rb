@@ -1,5 +1,5 @@
 require 'singleton'
-require 'active_support/core_ext/numeric'
+require 'active_support/core_ext/numeric/time'
 
 module Weeter
   class Configuration

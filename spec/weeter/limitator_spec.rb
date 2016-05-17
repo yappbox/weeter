@@ -14,7 +14,7 @@ describe Weeter::Limitator do
   let(:keys) { ['key'] }
 
   describe '.new' do
-    it { limitator.should be }
+    it { expect(limitator).to be }
   end
 
   describe '#limit_status' do
@@ -25,38 +25,38 @@ describe Weeter::Limitator do
 
     context 'max: 0' do
       let(:max) { 0 }
-      its(:status) { should == Weeter::Limitator::INITIATE_LIMITING }
-      its(:limited_keys) { should == keys }
+      it { expect(subject.status).to eq(Weeter::Limitator::INITIATE_LIMITING) }
+      it { expect(subject.limited_keys).to eq(keys) }
 
       context 'no keys' do
         let(:keys) { [] }
-        its(:status) { should == Weeter::Limitator::DO_NOT_LIMIT }
-        its(:limited_keys) { should == nil }
+        it { expect(subject.status).to eq(Weeter::Limitator::DO_NOT_LIMIT) }
+        it { expect(subject.limited_keys).to be_nil }
       end
 
       context 'two keys' do
         let(:keys) { ['key', 'key2'] }
-        its(:status) { should == Weeter::Limitator::INITIATE_LIMITING }
-        its(:limited_keys) { should == keys }
+        it { expect(subject.status).to eq(Weeter::Limitator::INITIATE_LIMITING) }
+        it { expect(subject.limited_keys).to eq(keys) }
       end
     end
 
     context 'max: 1' do
       let(:max) { 1 }
 
-      its(:status) { should == Weeter::Limitator::DO_NOT_LIMIT }
-      its(:limited_keys) { should == nil }
+      it { expect(subject.status).to eq(Weeter::Limitator::DO_NOT_LIMIT) }
+      it { expect(subject.limited_keys).to be_nil }
 
       context 'two keys within max' do
         let(:keys) { ['key', 'key2'] }
 
-        its(:status) { should == Weeter::Limitator::DO_NOT_LIMIT }
+        it { expect(subject.status).to eq(Weeter::Limitator::DO_NOT_LIMIT) }
       end
 
       context 'no keys' do
         let(:keys) { [] }
-        its(:status) { should == Weeter::Limitator::DO_NOT_LIMIT }
-        its(:limited_keys) { should == nil }
+        it { expect(subject.status).to eq(Weeter::Limitator::DO_NOT_LIMIT) }
+        it { expect(subject.limited_keys).to be_nil }
       end
 
       context 'one key just outside max' do
@@ -66,8 +66,8 @@ describe Weeter::Limitator do
           end
         end
 
-        its(:status) { should == Weeter::Limitator::INITIATE_LIMITING }
-        its(:limited_keys) { should == keys }
+        it { expect(subject.status).to eq(Weeter::Limitator::INITIATE_LIMITING) }
+        it { expect(subject.limited_keys).to eq(keys) }
 
         context 'outside duration' do
           let(:some_time_after_duration) do
@@ -75,11 +75,11 @@ describe Weeter::Limitator do
           end
 
           before do
-            limitator.stub(:now).and_return(some_time_after_duration)
+            expect(limitator).to receive(:now).and_return(some_time_after_duration).at_least(:once)
           end
 
-          its(:status) { should == Weeter::Limitator::DO_NOT_LIMIT }
-          its(:limited_keys) { should == nil }
+          it { expect(subject.status).to eq(Weeter::Limitator::DO_NOT_LIMIT) }
+          it { expect(subject.limited_keys).to be_nil }
         end
       end
 
@@ -90,8 +90,8 @@ describe Weeter::Limitator do
           limitator.process(*keys)
         end
 
-        its(:status) { should == Weeter::Limitator::INITIATE_LIMITING }
-        its(:limited_keys) { should == keys }
+        it { expect(subject.status).to eq(Weeter::Limitator::INITIATE_LIMITING) }
+        it { expect(subject.limited_keys).to eq(keys) }
       end
 
       context 'two keys past max' do
@@ -102,8 +102,8 @@ describe Weeter::Limitator do
           limitator.process(*keys)
         end
 
-        its(:status) { should == Weeter::Limitator::CONTINUE_LIMITING }
-        its(:limited_keys) { should == keys }
+        it { expect(subject.status).to eq(Weeter::Limitator::CONTINUE_LIMITING) }
+        it { expect(subject.limited_keys).to eq(keys) }
       end
 
       context 'one key just past max: 1, one key within max: 1' do
@@ -114,8 +114,8 @@ describe Weeter::Limitator do
           limitator.process(keys.first)
         end
 
-        its(:status) { should == Weeter::Limitator::INITIATE_LIMITING }
-        its(:limited_keys) { should == [keys.first] }
+        it { expect(subject.status).to eq(Weeter::Limitator::INITIATE_LIMITING) }
+        it { expect(subject.limited_keys).to eq([keys.first]) }
       end
 
       context 'one key past max: 1, one key within max: 1' do
@@ -127,8 +127,8 @@ describe Weeter::Limitator do
           limitator.process(keys.first)
         end
 
-        its(:status) { should == Weeter::Limitator::CONTINUE_LIMITING }
-        its(:limited_keys) { should == [keys.first] }
+        it { expect(subject.status).to eq(Weeter::Limitator::CONTINUE_LIMITING) }
+        it { expect(subject.limited_keys).to eq([keys.first]) }
       end
 
       context 'one key past max: 1, one key just past max: 1' do
@@ -140,8 +140,8 @@ describe Weeter::Limitator do
           limitator.process(*[keys.first, keys.last])
         end
 
-        its(:status) { should == Weeter::Limitator::INITIATE_LIMITING }
-        its(:limited_keys) { should == keys }
+        it { expect(subject.status).to eq(Weeter::Limitator::INITIATE_LIMITING) }
+        it { expect(subject.limited_keys).to eq(keys) }
       end
     end
   end

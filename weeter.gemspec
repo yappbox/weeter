@@ -19,17 +19,18 @@ Gem::Specification.new do |s|
   s.executables   = `git ls-files -- bin/*`.split("\n").map{ |f| File.basename(f) }
   s.require_paths = ["lib"]
 
-  s.add_dependency('eventmachine')
-  s.add_dependency('eventmachine_httpserver', '>= 0.2.1')
-  s.add_dependency('em-hiredis', '~> 0.1.0')
-  s.add_dependency('multi_json', '>= 1.0.2')
-  s.add_dependency('hashie', '>= 1.1.0')
-  s.add_dependency('em-http-request', '>= 1.0.0')
-  s.add_dependency('i18n', "~> 0.6.0")
-  s.add_dependency('activesupport', ">= 3.1.1")
-  s.add_dependency("simple_oauth", '>= 0.1.5')
-  s.add_dependency('lukemelia-twitter-stream', '~> 0.1.15')
+  s.add_dependency('eventmachine', '~> 1.2.0')
+  s.add_dependency('eventmachine_httpserver', '~> 0.2.1')
+  s.add_dependency('em-hiredis', '~> 0.1.1')
+  s.add_dependency('multi_json', '~> 1.12.0')
+  s.add_dependency('hashie', '~> 3.4.4')
+  s.add_dependency('em-http-request', '~> 1.1.3')
+  s.add_dependency('i18n', "~> 0.6.11")
+  s.add_dependency('activesupport', "~> 4.1.15")
+  s.add_dependency("simple_oauth", '~> 0.3.1')
+  s.add_dependency('em-twitter', '~> 0.3.5')
 
-  s.add_development_dependency 'rspec', '~> 2.6.0'
+  s.add_development_dependency 'rspec', '~> 3.4.0'
+  s.add_development_dependency 'byebug', '~> 2.4.1'
   s.add_development_dependency 'ZenTest'
 end
