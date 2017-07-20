@@ -37,7 +37,10 @@ module Weeter
       protected
 
         def redis
-          @redis ||= create_redis_client
+          @redis ||= begin
+            @config.verify_redis_namespace_config
+            create_redis_client
+          end
         end
 
         def enqueue(job)

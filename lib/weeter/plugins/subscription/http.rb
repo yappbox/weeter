@@ -23,11 +23,12 @@ module Weeter
         end
 
         def listen_for_filter_update(tweet_consumer)
-          EM.start_server('localhost', @config.subscription_updates_port, UpdateServer) do |conn|
+          port = @config.subscription_updates_port || Weeter::Configuration::ClientAppConfig::DEFAULT_SUBSCRIPTIONS_UPDATE_PORT
+          EM.start_server('localhost', port, UpdateServer) do |conn|
             conn.tweet_consumer = tweet_consumer
           end
         end
-        
+
         class UpdateServer < EM::Connection
           include EM::HttpServer
           attr_accessor :tweet_consumer

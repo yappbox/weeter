@@ -23,8 +23,8 @@ module Weeter
         end
 
         def listen_for_filter_update(tweet_consumer)
-          pub_sub_redis.subscribe(@config.subscriptions_changed_channel)
-          pub_sub_redis.on(:message) do |channel, message|
+          channel = @config.subscriptions_changed_channel
+          pub_sub_redis.subscribe(channel) do |message|
             Weeter.logger.info [:message, channel, message]
             Weeter.logger.info("Retrieving updated filters from redis")
             get_initial_filters do |filter_params|
@@ -41,7 +41,7 @@ module Weeter
         end
 
         def pub_sub_redis
-          @pub_sub_redis ||= create_redis_client
+          @pub_sub_redis ||= create_redis_client.pubsub
         end
 
       end
