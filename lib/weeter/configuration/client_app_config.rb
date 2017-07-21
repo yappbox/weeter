@@ -4,13 +4,11 @@ require 'hashie'
 module Weeter
   class Configuration
     class ClientAppConfig < Hashie::Mash
+      DEFAULT_SUBSCRIPTIONS_UPDATE_PORT = 7337
       InvalidConfiguration = Class.new(StandardError)
-      def subscription_updates_port
-        self['subscription_updates_port'] || 7337
-      end
 
-      def redis_namespace
-        self['redis_namespace'] || raise(InvalidConfiguration, 'missing `redis-namespace` config')
+      def verify_redis_namespace_config
+        !!self.redis_namespace || raise(InvalidConfiguration, 'missing `redis-namespace` config')
       end
     end
   end

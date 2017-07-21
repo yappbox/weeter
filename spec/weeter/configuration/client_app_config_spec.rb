@@ -11,8 +11,4 @@ describe Weeter::Configuration::ClientAppConfig do
       expect(Weeter::Configuration.instance.client_app.send(setting)).to eq("testvalue")
     end
   end
-
-  it "sets default subscription_updates_port" do
-    expect(Weeter::Configuration.instance.client_app.subscription_updates_port).to eq(7337)
-  end
 end
