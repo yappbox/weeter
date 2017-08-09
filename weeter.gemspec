@@ -25,7 +25,7 @@ Gem::Specification.new do |s|
   s.add_dependency('multi_json', '~> 1.3.0')
   s.add_dependency('hashie', '>= 2.0.5')
   s.add_dependency('em-http-request', '~> 1.1.5')
-  s.add_dependency('i18n', "~> 0.6.11")
+  s.add_dependency('i18n', "~> 0.7")
   s.add_dependency('activesupport', ">= 3.2.22")
   s.add_dependency("simple_oauth", '~> 0.3.1')
   s.add_dependency('em-twitter', '~> 0.3.5')
