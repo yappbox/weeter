@@ -21,7 +21,7 @@ Gem::Specification.new do |s|
 
   s.add_dependency('eventmachine', '~> 1.2.0')
   s.add_dependency('eventmachine_httpserver', '~> 0.2.1')
-  s.add_dependency('yapplabs-em-hiredis', '~> 0.4.0')
+  s.add_dependency('yapplabs-em-hiredis', '~> 0.4.1')
   s.add_dependency('multi_json', '~> 1.3.0')
   s.add_dependency('hashie', '>= 2.0.5')
   s.add_dependency('em-http-request', '~> 1.1.5')
